@@ -830,9 +830,10 @@ class AdbWrapper(object):
     # a protocol fault.
     # return self._RunDeviceAdbCmd(['get-state'], timeout, retries).strip()
 
-    lines = self._RawDevices(timeout=timeout, retries=retries)
+    lines = self._RawDevices(timeout=timeout, retries=retries, long_list=True)
     for line in lines:
-      if len(line) >= 2 and line[0] == self._device_serial:
+      if len(line) >= 3 and (line[0] == self._device_serial or line[2] ==
+        self._device_serial):
         return line[1]
     return 'offline'
 
