@@ -828,8 +828,9 @@ class AdbWrapper(object):
       timeout: (optional) Timeout per try in seconds.
       retries: (optional) Number of retries to attempt.
 
-    Returns: One of 'offline', 'bootloader', or 'unauthorized', or
-    'no' [permissions], or 'device'
+    Returns:
+        One of 'offline', 'bootloader', or 'unauthorized', or
+        'no' [permissions], or 'device'
     """
     # TODO(jbudorick): Revert to using get-state once it doesn't cause a
     # a protocol fault.
