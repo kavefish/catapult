@@ -77,3 +77,6 @@ class AdbWrapperTest(unittest.TestCase):
     with self._MockRunDeviceAdbCmd('no'):
       self.adb.GetState()
 
+
+if __name__ == '__main__':
+  unittest.main()
