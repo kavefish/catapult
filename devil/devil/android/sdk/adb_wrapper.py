@@ -128,6 +128,11 @@ class AdbWrapper(object):
     """
     if not device_serial:
       raise ValueError('A device serial must be specified')
+
+    # TODO: Improve support for instances created from a USB ID.
+    if "usb:" in device_serial:
+      logger.warning("Not all features are supported when using a USB ID.")
+
     self._device_serial = str(device_serial)
 
   class PersistentShell(object):
