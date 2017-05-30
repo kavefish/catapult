@@ -19,63 +19,85 @@ with devil_env.SysPath(devil_env.PYMOCK_PATH):
 
 class AdbWrapperTest(unittest.TestCase):
   def setUp(self):
-    self.adb = adb_wrapper.AdbWrapper('ABC12345678')
+    self.adb_wrappers = [
+      adb_wrapper.AdbWrapper('ABC12345678'),
+      adb_wrapper.AdbWrapper('usb:1-2.3'),
+    ]
 
-  def _MockRunDeviceAdbCmd(self, return_value):
+  def _MockRunDeviceAdbCmd(self, adb, return_value):
     return mock.patch.object(
-        self.adb,
+        adb,
         '_RunDeviceAdbCmd',
         mock.Mock(side_effect=None, return_value=return_value))
 
   def testDisableVerityWhenDisabled(self):
-    with self._MockRunDeviceAdbCmd('Verity already disabled on /system'):
-      self.adb.DisableVerity()
+    return_value = 'Verity already disabled on /system'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        adb.DisableVerity()
 
   def testDisableVerityWhenEnabled(self):
-    with self._MockRunDeviceAdbCmd(
-        'Verity disabled on /system\nNow reboot your device for settings to '
-        'take effect'):
-      self.adb.DisableVerity()
+    return_value = 'Verity disabled on /system\nNow reboot your device for ' \
+                   'settings to take effect'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        adb.DisableVerity()
 
   def testEnableVerityWhenEnabled(self):
-    with self._MockRunDeviceAdbCmd('Verity already enabled on /system'):
-      self.adb.EnableVerity()
+    return_value = 'Verity already enabled on /system'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        adb.EnableVerity()
 
   def testEnableVerityWhenDisabled(self):
-    with self._MockRunDeviceAdbCmd(
-        'Verity enabled on /system\nNow reboot your device for settings to '
-        'take effect'):
-      self.adb.EnableVerity()
+    return_value = 'Verity enabled on /system\nNow reboot your device for ' \
+               'settings to take effect'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        adb.EnableVerity()
 
   def testFailEnableVerity(self):
-    with self._MockRunDeviceAdbCmd('error: closed'):
-      self.assertRaises(
-          device_errors.AdbCommandFailedError, self.adb.EnableVerity)
+    return_value = 'error: closed'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        self.assertRaises(device_errors.AdbCommandFailedError, adb.EnableVerity)
 
   def testFailDisableVerity(self):
-    with self._MockRunDeviceAdbCmd('error: closed'):
-      self.assertRaises(
-          device_errors.AdbCommandFailedError, self.adb.DisableVerity)
+    return_value = 'error: closed'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        self.assertRaises(device_errors.AdbCommandFailedError,
+                          adb.DisableVerity)
 
   def testGetStateOnline(self):
-    with self._MockRunDeviceAdbCmd('device'):
-      self.adb.GetState()
+    return_value = 'device'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        adb.GetState()
 
   def testGetStateOffline(self):
-    with self._MockRunDeviceAdbCmd('offline'):
-      self.adb.GetState()
-
-  def testGetStateBootloader(self):
-    with self._MockRunDeviceAdbCmd('bootloader'):
-      self.adb.GetState()
+    return_value = 'offline'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        adb.GetState()
 
   def testGetStateUnauthorized(self):
-    with self._MockRunDeviceAdbCmd('unauthorized'):
-      self.adb.GetState()
+    return_value = 'unauthorized'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        adb.GetState()
+
+  def testGetStateBootloader(self):
+    return_value = 'bootloader'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        adb.GetState()
 
   def testGetStateNoPermissions(self):
-    with self._MockRunDeviceAdbCmd('no'):
-      self.adb.GetState()
+    return_value = 'no' # as in 'no permissions'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        adb.GetState()
 
 
 if __name__ == '__main__':
