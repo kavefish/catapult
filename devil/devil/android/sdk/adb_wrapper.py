@@ -823,15 +823,15 @@ class AdbWrapper(object):
       timeout: (optional) Timeout per try in seconds.
       retries: (optional) Number of retries to attempt.
 
-    Returns:
-      One of 'offline', 'bootloader', or 'device'.
+    Returns: One of 'offline', 'bootloader', or 'unauthorized', or
+    'no' [permissions], or 'device'
     """
     # TODO(jbudorick): Revert to using get-state once it doesn't cause a
     # a protocol fault.
     # return self._RunDeviceAdbCmd(['get-state'], timeout, retries).strip()
 
     # TODO: improve support for AdbWrapper instances created from a USB ID
-    # rather than a serial.
+    # instead of a serial.
     lines = self._RawDevices(timeout=timeout, retries=retries, long_list=True)
     for line in lines:
       if len(line) >= 3 and (line[0] == self._device_serial or line[2] ==
