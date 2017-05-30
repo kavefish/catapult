@@ -57,3 +57,19 @@ class AdbWrapperTest(unittest.TestCase):
       self.assertRaises(
           device_errors.AdbCommandFailedError, self.adb.DisableVerity)
 
+  def testGetStateOnline(self):
+    with self._MockRunDeviceAdbCmd('device'):
+      self.adb.GetState()
+
+  def testGetStateOffline(self):
+    with self._MockRunDeviceAdbCmd('offline'):
+      self.adb.GetState()
+
+  def testGetStateUnauthorized(self):
+    with self._MockRunDeviceAdbCmd('unauthorized'):
+      self.adb.GetState()
+
+  def testGetStateNoPermissions(self):
+    with self._MockRunDeviceAdbCmd('no'):
+      self.adb.GetState()
+
