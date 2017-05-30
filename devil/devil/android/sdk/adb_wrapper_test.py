@@ -65,6 +65,10 @@ class AdbWrapperTest(unittest.TestCase):
     with self._MockRunDeviceAdbCmd('offline'):
       self.adb.GetState()
 
+  def testGetStateBootloader(self):
+    with self._MockRunDeviceAdbCmd('bootloader'):
+      self.adb.GetState()
+
   def testGetStateUnauthorized(self):
     with self._MockRunDeviceAdbCmd('unauthorized'):
       self.adb.GetState()
