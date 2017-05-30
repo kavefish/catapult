@@ -120,7 +120,12 @@ class AdbWrapper(object):
     """Initializes the AdbWrapper.
 
     Args:
-      device_serial: The device serial number as a string.
+      device_serial: The device serial number or USB bus ID (*) as a string.
+
+      # (*) WARNING: Not all devil features are supported when using a USB ID.
+
+      # TODO: Improve support for instances created from a USB ID.
+
     """
     if not device_serial:
       raise ValueError('A device serial must be specified')
@@ -830,8 +835,6 @@ class AdbWrapper(object):
     # a protocol fault.
     # return self._RunDeviceAdbCmd(['get-state'], timeout, retries).strip()
 
-    # TODO: improve support for AdbWrapper instances created from a USB ID
-    # instead of a serial.
     lines = self._RawDevices(timeout=timeout, retries=retries, long_list=True)
     for line in lines:
       if len(line) >= 3 and (line[0] == self._device_serial or line[2] ==
