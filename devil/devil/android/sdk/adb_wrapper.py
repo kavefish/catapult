@@ -111,7 +111,10 @@ def _IsExtraneousLine(line, send_cmd):
 
 
 class AdbWrapper(object):
-  """A wrapper around a local Android Debug Bridge executable."""
+  """A wrapper around a local Android Debug Bridge executable.
+
+  WARNING: Not all features are supported when using a USB ID.
+  """
 
   _adb_path = lazy.WeakConstant(_FindAdb)
   _adb_version = lazy.WeakConstant(_GetVersion)
@@ -120,11 +123,7 @@ class AdbWrapper(object):
     """Initializes the AdbWrapper.
 
     Args:
-      device_serial: The device serial number or USB bus ID (*) as a string.
-
-      # (*) WARNING: Not all devil features are supported when using a USB ID.
-
-      # TODO: Improve support for instances created from a USB ID.
+      device_serial: The device serial number or USB bus ID as a string.
 
     """
     if not device_serial:
