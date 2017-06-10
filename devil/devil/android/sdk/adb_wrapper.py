@@ -112,7 +112,7 @@ def _IsExtraneousLine(line, send_cmd):
 
 class AdbWrapper(object):
   """A wrapper around a local Android Debug Bridge executable.
-
+  
   WARNING: Not all features are supported when using a USB ID.
   """
 
@@ -124,7 +124,6 @@ class AdbWrapper(object):
 
     Args:
       device_serial: The device serial number or USB bus ID as a string.
-
     """
     if not device_serial:
       raise ValueError('A device serial must be specified')
@@ -833,8 +832,8 @@ class AdbWrapper(object):
       retries: (optional) Number of retries to attempt.
 
     Returns:
-        One of 'offline', 'bootloader', or 'unauthorized', or
-        'no' [permissions], or 'device'
+      One of 'offline', 'bootloader', or 'unauthorized', or
+      'no' [permissions], or 'device'
     """
     # TODO(jbudorick): Revert to using get-state once it doesn't cause a
     # a protocol fault.
