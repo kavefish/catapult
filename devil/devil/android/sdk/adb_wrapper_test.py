@@ -27,6 +27,12 @@ class AdbWrapperTest(unittest.TestCase):
         '_RunDeviceAdbCmd',
         mock.Mock(side_effect=None, return_value=return_value))
 
+  def _MockRawDevices(self, return_value):
+    return mock.patch.object(
+        self.adb,
+        '_RawDevices',
+        mock.Mock(side_effect=None, return_value=return_value))
+
   def testDisableVerityWhenDisabled(self):
     with self._MockRunDeviceAdbCmd('Verity already disabled on /system'):
       self.adb.DisableVerity()
@@ -57,3 +63,38 @@ class AdbWrapperTest(unittest.TestCase):
       self.assertRaises(
           device_errors.AdbCommandFailedError, self.adb.DisableVerity)
 
+  def testGetStateEmpty(self):
+      return_value = [[]]
+      with self._MockRawDevices(return_value):
+          self.assertEqual(self.adb.GetState(), 'offline')
+
+  def testGetStateNoPermissions(self):
+      return_value = [['ABC12345678', 'no', 'permissions',
+                       '(udev', 'requires', 'plugdev', 'group', 'membership);',
+                       'see',
+                       '[http://developer.android.com/tools/device.html]',
+                       'usb:1-2.3'], []]
+      with self._MockRawDevices(return_value):
+          self.assertEqual(self.adb.GetState(), 'no')
+
+  def testGetStateUnauthorized(self):
+      return_value = [['ABC12345678', 'unauthorized', 'usb:1-2.3'], []]
+      with self._MockRawDevices(return_value):
+          self.assertEqual(self.adb.GetState(), 'unauthorized')
+
+  def testGetStateOffline(self):
+      return_value = [['ABC12345678', 'offline', 'usb:1-2.3'], []]
+      with self._MockRawDevices(return_value):
+          self.assertEqual(self.adb.GetState(), 'offline')
+
+  def testGetStateOnline(self):
+      return_value = [['ABC12345678', 'device', 'usb:1-2.3',
+                       'product:bullhead', 'model:Nexus_5X',
+                       'device:bullhead'], []]
+
+      with self._MockRawDevices(return_value):
+          self.assertEqual(self.adb.GetState(), 'device')
+
+
+if __name__ == '__main__':
+  unittest.main()
