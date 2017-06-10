@@ -19,81 +19,105 @@ with devil_env.SysPath(devil_env.PYMOCK_PATH):
 
 class AdbWrapperTest(unittest.TestCase):
   def setUp(self):
-    self.adb = adb_wrapper.AdbWrapper('ABC12345678')
+    self.adb_wrappers = [
+      adb_wrapper.AdbWrapper('ABC12345678'),
+      adb_wrapper.AdbWrapper('usb:1-2.3'),
+    ]
 
-  def _MockRunDeviceAdbCmd(self, return_value):
+  def _MockRunDeviceAdbCmd(self, adb, return_value):
     return mock.patch.object(
-        self.adb,
+        adb,
         '_RunDeviceAdbCmd',
         mock.Mock(side_effect=None, return_value=return_value))
 
-  def _MockRawDevices(self, return_value):
+  def _MockRawDevices(self, adb, return_value):
     return mock.patch.object(
-        self.adb,
+        adb,
         '_RawDevices',
         mock.Mock(side_effect=None, return_value=return_value))
 
   def testDisableVerityWhenDisabled(self):
-    with self._MockRunDeviceAdbCmd('Verity already disabled on /system'):
-      self.adb.DisableVerity()
+    return_value = 'Verity already disabled on /system'
+    for adb in self.adb_wrappers:
+        with self._MockRunDeviceAdbCmd(adb, return_value):
+          adb.DisableVerity()
 
   def testDisableVerityWhenEnabled(self):
-    with self._MockRunDeviceAdbCmd(
-        'Verity disabled on /system\nNow reboot your device for settings to '
-        'take effect'):
-      self.adb.DisableVerity()
+    return_value ='Verity disabled on /system\nNow reboot your device for settings to take effect'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        adb.DisableVerity()
 
   def testEnableVerityWhenEnabled(self):
-    with self._MockRunDeviceAdbCmd('Verity already enabled on /system'):
-      self.adb.EnableVerity()
+    return_value = 'Verity already enabled on /system'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        adb.EnableVerity()
 
   def testEnableVerityWhenDisabled(self):
-    with self._MockRunDeviceAdbCmd(
-        'Verity enabled on /system\nNow reboot your device for settings to '
-        'take effect'):
-      self.adb.EnableVerity()
+    return_value = 'Verity enabled on /system\nNow reboot your device for ' \
+                   'settings to take effect'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        adb.EnableVerity()
 
   def testFailEnableVerity(self):
-    with self._MockRunDeviceAdbCmd('error: closed'):
-      self.assertRaises(
-          device_errors.AdbCommandFailedError, self.adb.EnableVerity)
+    return_value = 'error: closed'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        self.assertRaises(
+          device_errors.AdbCommandFailedError, adb.EnableVerity)
 
   def testFailDisableVerity(self):
-    with self._MockRunDeviceAdbCmd('error: closed'):
-      self.assertRaises(
-          device_errors.AdbCommandFailedError, self.adb.DisableVerity)
+    return_value = 'error: closed'
+    for adb in self.adb_wrappers:
+      with self._MockRunDeviceAdbCmd(adb, return_value):
+        self.assertRaises(
+          device_errors.AdbCommandFailedError, adb.DisableVerity)
 
   def testGetStateEmpty(self):
-      return_value = [[]]
-      with self._MockRawDevices(return_value):
-          self.assertEqual(self.adb.GetState(), 'offline')
+    return_value = [[]]
+    for adb in self.adb_wrappers:
+      with self._MockRawDevices(adb, return_value):
+        self.assertEqual(adb.GetState(), 'offline')
 
   def testGetStateNoPermissions(self):
-      return_value = [['ABC12345678', 'no', 'permissions',
-                       '(udev', 'requires', 'plugdev', 'group', 'membership);',
-                       'see',
-                       '[http://developer.android.com/tools/device.html]',
-                       'usb:1-2.3'], []]
-      with self._MockRawDevices(return_value):
-          self.assertEqual(self.adb.GetState(), 'no')
+    return_value = [['PLACEHOLDER', 'no', 'permissions',
+                     '(udev', 'requires', 'plugdev', 'group', 'membership);',
+                     'see',
+                     '[http://developer.android.com/tools/device.html]',
+                     'usb:1-2.3'], []]
+    for adb in self.adb_wrappers:
+      # overwrite placeholder
+      return_value[0][0] = adb.GetDeviceSerial()
+      with self._MockRawDevices(adb, return_value):
+        self.assertEqual(adb.GetState(), 'no')
 
   def testGetStateUnauthorized(self):
-      return_value = [['ABC12345678', 'unauthorized', 'usb:1-2.3'], []]
-      with self._MockRawDevices(return_value):
-          self.assertEqual(self.adb.GetState(), 'unauthorized')
+    return_value = [['PLACEHOLDER', 'unauthorized', 'usb:1-2.3'], []]
+    for adb in self.adb_wrappers:
+      # overwrite placeholder
+      return_value[0][0] = adb.GetDeviceSerial()
+      with self._MockRawDevices(adb, return_value):
+        self.assertEqual(adb.GetState(), 'unauthorized')
 
   def testGetStateOffline(self):
-      return_value = [['ABC12345678', 'offline', 'usb:1-2.3'], []]
-      with self._MockRawDevices(return_value):
-          self.assertEqual(self.adb.GetState(), 'offline')
+    return_value = [['PLACEHOLDER', 'offline', 'usb:1-2.3'], []]
+    for adb in self.adb_wrappers:
+      # overwrite placeholder
+      return_value[0][0] = adb.GetDeviceSerial()
+      with self._MockRawDevices(adb, return_value):
+        self.assertEqual(adb.GetState(), 'offline')
 
   def testGetStateOnline(self):
-      return_value = [['ABC12345678', 'device', 'usb:1-2.3',
+    return_value = [['PLACEHOLDER', 'device', 'usb:1-2.3',
                        'product:bullhead', 'model:Nexus_5X',
                        'device:bullhead'], []]
-
-      with self._MockRawDevices(return_value):
-          self.assertEqual(self.adb.GetState(), 'device')
+    for adb in self.adb_wrappers:
+      # overwrite placeholder
+      return_value[0][0] = adb.GetDeviceSerial()
+      with self._MockRawDevices(adb, return_value):
+        self.assertEqual(adb.GetState(), 'device')
 
 
 if __name__ == '__main__':

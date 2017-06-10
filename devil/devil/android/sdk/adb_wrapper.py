@@ -111,7 +111,10 @@ def _IsExtraneousLine(line, send_cmd):
 
 
 class AdbWrapper(object):
-  """A wrapper around a local Android Debug Bridge executable."""
+  """A wrapper around a local Android Debug Bridge executable.
+  
+  WARNING: Not all features are supported when using a USB ID.
+  """
 
   _adb_path = lazy.WeakConstant(_FindAdb)
   _adb_version = lazy.WeakConstant(_GetVersion)
@@ -120,10 +123,15 @@ class AdbWrapper(object):
     """Initializes the AdbWrapper.
 
     Args:
-      device_serial: The device serial number as a string.
+      device_serial: The device serial number or USB bus ID as a string.
     """
     if not device_serial:
       raise ValueError('A device serial must be specified')
+
+    # TODO: Improve support for instances created from a USB ID.
+    if "usb:" in device_serial:
+      logger.warning("Not all features are supported when using a USB ID.")
+
     self._device_serial = str(device_serial)
 
   class PersistentShell(object):
@@ -824,7 +832,9 @@ class AdbWrapper(object):
       retries: (optional) Number of retries to attempt.
 
     Returns:
-      One of 'offline', 'bootloader', or 'device'.
+      One of 'offline', 'bootloader', or 'unauthorized', or
+      'no' [permissions], or 'device'
+
     """
     # TODO(jbudorick): Revert to using get-state once it doesn't cause a
     # a protocol fault.
