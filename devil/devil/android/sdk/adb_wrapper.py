@@ -112,7 +112,7 @@ def _IsExtraneousLine(line, send_cmd):
 
 class AdbWrapper(object):
   """A wrapper around a local Android Debug Bridge executable.
-  
+ 
   WARNING: Not all features are supported when using a USB ID.
   """
 

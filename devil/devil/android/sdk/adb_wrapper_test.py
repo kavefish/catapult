@@ -24,12 +24,14 @@ class AdbWrapperTest(unittest.TestCase):
       adb_wrapper.AdbWrapper('usb:1-2.3'),
     ]
 
+  @staticmethod
   def _MockRunDeviceAdbCmd(self, adb, mock_return_value):
     return mock.patch.object(
       adb,
       '_RunDeviceAdbCmd',
       mock.Mock(side_effect=None, return_value=mock_return_value))
 
+  @staticmethod
   def _MockRawDevices(self, adb, mock_return_value):
     return mock.patch.object(
       adb,
@@ -43,8 +45,8 @@ class AdbWrapperTest(unittest.TestCase):
         adb.DisableVerity()
 
   def testDisableVerityWhenEnabled(self):
-    mock_return_value ='Verity disabled on /system\nNow reboot your device for '\
-                  'settings to take effect'
+    mock_return_value = 'Verity disabled on /system\nNow reboot your device '\
+                  'for settings to take effect'
     for adb in self.adb_wrappers:
       with self._MockRunDeviceAdbCmd(adb, mock_return_value):
         adb.DisableVerity()
@@ -56,8 +58,8 @@ class AdbWrapperTest(unittest.TestCase):
         adb.EnableVerity()
 
   def testEnableVerityWhenDisabled(self):
-    mock_return_value = 'Verity enabled on /system\nNow reboot your device for ' \
-                   'settings to take effect'
+    mock_return_value = 'Verity enabled on /system\nNow reboot your device '\
+                   'for settings to take effect'
     for adb in self.adb_wrappers:
       with self._MockRunDeviceAdbCmd(adb, mock_return_value):
         adb.EnableVerity()
