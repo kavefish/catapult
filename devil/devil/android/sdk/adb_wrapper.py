@@ -832,8 +832,8 @@ class AdbWrapper(object):
       retries: (optional) Number of retries to attempt.
 
     Returns:
-      One of 'offline', 'bootloader', or 'unauthorized', or
-      'no' [permissions], or 'device'
+      One of 'offline', 'bootloader', 'unauthorized', 'no' [permissions],
+      or 'device'
     """
     # TODO(jbudorick): Revert to using get-state once it doesn't cause a
     # a protocol fault.
