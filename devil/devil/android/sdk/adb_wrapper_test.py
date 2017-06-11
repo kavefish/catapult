@@ -25,14 +25,14 @@ class AdbWrapperTest(unittest.TestCase):
     ]
 
   @staticmethod
-  def _MockRunDeviceAdbCmd(self, adb, mock_return_value):
+  def _MockRunDeviceAdbCmd(adb, mock_return_value):
     return mock.patch.object(
       adb,
       '_RunDeviceAdbCmd',
       mock.Mock(side_effect=None, return_value=mock_return_value))
 
   @staticmethod
-  def _MockRawDevices(self, adb, mock_return_value):
+  def _MockRawDevices(adb, mock_return_value):
     return mock.patch.object(
       adb,
       '_RawDevices',
